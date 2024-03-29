@@ -7,39 +7,53 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp( {super.key});
+  const MyApp({Key? key});
 
   @override 
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context)=> MyAppState(),
+      create: (context) => MyAppState(),
       child: MaterialApp(
-      title: 'Namer App',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor:Colors.deepOrange),
+        title: 'Namer App',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-      home: MyHomePage(),
+        home: MyHomePage(),
       ),
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
+  late WordPair _current = WordPair.random();
 
+  WordPair get current => _current;
+
+  void getNext() {
+    _current = WordPair.random();
+    notifyListeners();
+  }
+}
 
 class MyHomePage extends StatelessWidget {
   @override
-  Widget build (BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
           Text('A random idea'),
-          Text(appState.current.asLowerCase),
+          Consumer<MyAppState>(
+            builder: (context, appState, _) {
+              return Text(appState.current.asLowerCase);
+            },
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<MyAppState>().getNext();
+            },
+            child: Text('Next'),
+          ),
         ],
       ),
     );
